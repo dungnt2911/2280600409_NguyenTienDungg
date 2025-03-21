@@ -1,0 +1,84 @@
+﻿@model _2280600409_NguyenTienDungg.Models.Product
+
+@{
+    ViewData["Title"] = "Add Product";
+    bool isDisabled = ViewBag.Categories == null || !((IEnumerable<SelectListItem>)ViewBag.Categories).Any();
+    var selectList = ViewBag.Categories ?? new List<SelectListItem>(); // Đảm bảo không bị null
+}
+
+<h2 class="mb-4">Add Product</h2>
+
+@if (!string.IsNullOrEmpty(ViewBag.CategoryError))
+{
+    <div class="alert alert-danger d-flex justify-content-between align-items-center">
+        <span>@ViewBag.CategoryError</span>
+        <a asp-controller="Category" asp-action="Add" class="btn btn-primary btn-sm">Add Category</a>
+    </div>
+}
+
+<form asp-action="Add" method="post" enctype="multipart/form-data">
+    <div class="form-group mb-3">
+        <label asp-for="Name" class="form-label">Product Name</label>
+        <input asp-for="Name" class="form-control" required />
+        <span asp-validation-for="Name" class="text-danger"></span>
+    </div>
+
+    <div class="form-group mb-3">
+        <label asp-for="Price" class="form-label">Price</label>
+        <input asp-for="Price" type="number" class="form-control" required min="0" step="0.01" />
+        <span asp-validation-for="Price" class="text-danger"></span>
+    </div>
+
+    <div class="form-group mb-3">
+        <label asp-for="Description" class="form-label">Description</label>
+        <textarea asp-for="Description" class="form-control" rows="3"></textarea>
+        <span asp-validation-for="Description" class="text-danger"></span>
+    </div>
+
+    <div class="form-group mb-3">
+        <label asp-for="CategoryId" class="form-label">Category</label>
+        <select asp-for="CategoryId" asp-items="selectList" class="form-control" required disabled="@(isDisabled ? "disabled" : null)">
+
+
+            <option disabled selected>-- Select Category --</option>
+        </select>
+        <span asp-validation-for="CategoryId" class="text-danger"></span>
+    </div>
+
+    <div class="form-group mb-3">
+        <label class="form-label">Product Image</label>
+        <input type="file" name="imageUrl" class="form-control" accept="image/*" onchange="previewImage(event)" />
+        <span asp-validation-for="ImageUrl" class="text-danger"></span>
+    </div>
+
+    <div class="form-group mb-3 text-center">
+        <img id="imagePreview" class="img-thumbnail d-none" style="max-width: 200px; max-height: 200px;" />
+    </div>
+
+    <div class="d-flex justify-content-between">
+        <button type="submit" class="btn btn-primary">Add Product</button>
+        <a asp-action="Index" class="btn btn-secondary">Back to List</a>
+    </div>
+</form>
+
+@section Scripts {
+    @await Html.PartialAsync("_ValidationScriptsPartial")
+
+    <script>
+        function previewImage(event) {
+            var file = event.target.files[0];
+            if (!file) {
+                document.getElementById('imagePreview').classList.add("d-none");
+                return;
+            }
+
+            var reader = new FileReader();
+            reader.onload = function () {
+                var output = document.getElementById('imagePreview');
+                output.src = reader.result;
+                output.classList.remove("d-none");
+            };
+            reader.readAsDataURL(file);
+        }
+    </script>
+}
